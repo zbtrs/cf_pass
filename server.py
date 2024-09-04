@@ -29,6 +29,7 @@ arguments = [
     "-deny-permission-prompts",
     "-disable-gpu",
     "-accept-lang=en-US",
+    "--headless=new",
     #"-incognito" # You can add this line to open the browser in incognito mode by default 
 ]
 
@@ -68,11 +69,15 @@ def bypass_cloudflare(url: str, retries: int, log: bool) -> ChromiumPage:
         options.set_argument("--remote-debugging-port=9222")
         options.set_argument("--no-sandbox")  # Necessary for Docker
         options.set_argument("--disable-gpu")  # Optional, helps in some cases
+        options.set_argument("--headless")
         options.set_paths(browser_path=browser_path).headless(False)
     else:
+        print('fuck!')
         options = ChromiumOptions()
         options.set_argument("--auto-open-devtools-for-tabs", "true")
-        options.set_paths(browser_path=browser_path).headless(False)
+        options.set_argument("--headless=new")
+        # options.set_argument("--no-sandbox")
+        # options.set_paths(browser_path=browser_path).headless(False)
 
     driver = ChromiumPage(addr_or_opts=options)
     try:

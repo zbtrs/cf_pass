@@ -3,6 +3,7 @@ import logging
 import os
 from CloudflareBypasser import CloudflareBypasser
 from DrissionPage import ChromiumPage, ChromiumOptions
+import re
 
 # Configure logging
 logging.basicConfig(
@@ -59,6 +60,7 @@ def main():
         "-deny-permission-prompts",
         "-disable-gpu",
         "-accept-lang=en-US",
+        # "--headless=new"
     ]
 
     options = get_chromium_options(browser_path, arguments)
@@ -67,7 +69,7 @@ def main():
     driver = ChromiumPage(addr_or_opts=options)
     try:
         logging.info('Navigating to the demo page.')
-        driver.get('https://nopecha.com/demo/cloudflare')
+        driver.get('https://ideogram.ai/t/explore')
 
         # Where the bypass starts
         logging.info('Starting Cloudflare bypass.')
@@ -80,9 +82,127 @@ def main():
 
         logging.info("Enjoy the content!")
         logging.info("Title of the page: %s", driver.title)
+        
+        texts = ['haha', 'test1']  # 你可以根据需要添加更多文本
+        result_list = []
 
-        # Sleep for a while to let the user see the result if needed
-        time.sleep(5)
+        is_first = True
+
+        for text in texts:
+            try:
+                if is_first is True:
+                    textarea = driver.ele('xpath://*[@id="root"]/div[2]/div/div/div[2]/div/div/div/div/div[1]/div[1]/div/div[1]/div[1]/div/textarea[1]')
+                    textarea.input(text)
+                    button = driver.ele('xpath://*[@id="root"]/div[2]/div/div/div[2]/div/div/div/div/div[2]/div[4]/button')
+                    button.click(by_js=False)
+                    time.sleep(1)
+                
+                    button = driver.ele('xpath://*[@id="root"]/header/div/div[2]/div/div/button')
+                    button.click(by_js=False)
+                    is_first = False
+                else:
+                    textarea = driver.ele('xpath://*[@id="root"]/header/div/div[2]/div/div/div/div/div[1]/div[1]/div/div[1]/div[1]/div/textarea[1]')
+                    textarea.clear()
+                    textarea.input(text)
+                    button = driver.ele('xpath://*[@id="root"]/header/div/div[2]/div/div/div/div/div[2]/div[4]/button')
+                    button.click(by_js=False)
+                    # //*[@id="root"]/header/div/div[2]/div/div/div/div/div[2]/div[4]/button
+                
+                img_path1, img_path2, img_path3, img_path4 = "", "", "", ""
+                
+                while True:
+                    try:
+                        time.sleep(1)
+                        response = driver.ele('xpath://*[@id="root"]/div[3]/div[2]/div[1]/div/div/div/div/a/img')
+                        img_path = response.attr('src')  # 获取 src 属性
+                        print(img_path)
+                        path_parts = img_path.split('/') 
+                        print(path_parts[-2])
+                        
+                        # 检查路径是否符合条件
+                        if len(path_parts) >= 2 and path_parts[-2] == 'response':
+                            print('success!')
+                            img_path1 = img_path
+                            
+                            # 获取其他图片的路径
+                            response = driver.ele('xpath://*[@id="root"]/div[3]/div[2]/div[2]/div/div/div/div/a/img')
+                            img_path2 = response.attr('src')
+                            
+                            response = driver.ele('xpath://*[@id="root"]/div[3]/div[2]/div[3]/div/div/div/div/a/img')
+                            img_path3 = response.attr('src')
+                            
+                            response = driver.ele('xpath://*[@id="root"]/div[3]/div[2]/div[4]/div/div/div/div/a/img')
+                            img_path4 = response.attr('src')
+                            
+                            # 退出循环
+                            break
+                    except Exception as e:
+                        print(f"An error occurred: {e}")
+                        continue
+                
+                # 将结果添加到结果列表
+                result_list.append(img_path1)
+                result_list.append(img_path2)
+                result_list.append(img_path3)
+                result_list.append(img_path4)
+                
+            except Exception as e:
+                print(f"An error occurred during the text input and click process: {e}")
+        
+        
+        for x in result_list:
+            print(x)
+        
+        # textarea = driver.ele('xpath://*[@id="root"]/div[2]/div/div/div[2]/div/div/div/div/div[1]/div[1]/div/div[1]/div[1]/div/textarea[1]')
+        # textarea.input('haha')
+        # button = driver.ele('xpath://*[@id="root"]/div[2]/div/div/div[2]/div/div/div/div/div[2]/div[4]/button')
+        # button.click(by_js=False)
+        # time.sleep(1)
+        # button = driver.ele('xpath://*[@id="root"]/header/div/div[2]/div/div/button')
+        # button.click(by_js=False)
+        # img_path1 = ""
+        # img_path2 = ""
+        # img_path3 = ""
+        # img_path4 = ""
+        # while True:
+        #     try:
+        #         time.sleep(1)
+        #         response = driver.ele('xpath://*[@id="root"]/div[3]/div[2]/div[1]/div/div/div/div/a/img')
+        #         img_path = response.attr('src')  # 获取 src 属性
+        #         print(img_path)
+        #         path_parts = img_path.split('/') 
+        #         print(path_parts[-2])
+                
+        #         # 检查路径是否符合条件
+        #         if len(path_parts) >= 2 and path_parts[-2] == 'response':
+        #             print('success!')
+        #             img_path1 = img_path
+                    
+        #             # 获取其他图片的路径
+        #             response = driver.ele('xpath://*[@id="root"]/div[3]/div[2]/div[2]/div/div/div/div/a/img')
+        #             img_path = response.attr('src')
+        #             img_path2 = img_path
+                    
+        #             response = driver.ele('xpath://*[@id="root"]/div[3]/div[2]/div[3]/div/div/div/div/a/img')
+        #             img_path = response.attr('src')
+        #             img_path3 = img_path
+                    
+        #             response = driver.ele('xpath://*[@id="root"]/div[3]/div[2]/div[4]/div/div/div/div/a/img')
+        #             img_path = response.attr('src')
+        #             img_path4 = img_path
+                    
+        #             # 退出循环
+        #             break
+        #     except Exception as e:
+        #         print(f"An error occurred: {e}")
+        #         continue
+
+        # # 输出最终结果
+        # print(img_path1)
+        # print(img_path2)
+        # print(img_path3)
+        # print(img_path4)
+        time.sleep(100000)
     except Exception as e:
         logging.error("An error occurred: %s", str(e))
     finally:
